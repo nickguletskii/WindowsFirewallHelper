@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using WindowsFirewallHelper.Helpers;
+using System.Linq;
 
 namespace WindowsFirewallHelper
 {
+
     /// <summary>
     ///     Represents a dynamic data collection that provides notifications when items get added or removed.
     /// </summary>
@@ -25,13 +27,15 @@ namespace WindowsFirewallHelper
         {
             lock (_syncLock)
             {
-                foreach (var item in newItems)
-                    if (!EnumerableHelper.Contains(this, item))
-                        Add(item);
-                var array = ToArray();
-                foreach (var item in array)
-                    if (!EnumerableHelper.Contains(newItems, item))
-                        Remove(item);
+                foreach (var newItem in newItems.Except(this).ToList())
+                {
+                    this.Add(newItem);
+                }
+
+                foreach (var obj in this.Except(newItems).ToList())
+                {
+                    this.Remove(obj);
+                }
             }
         }
 
